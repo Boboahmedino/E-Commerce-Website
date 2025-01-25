@@ -1,0 +1,851 @@
+{% extends "base_home.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+            <!-- Single Page Header start -->
+            <div class="container-fluid page-header py-5">
+                <h1 class="text-center text-white display-6">Checkout</h1>
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'shop' %}">Shop</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'cart' %}">Cart</a></li>
+                    <li class="breadcrumb-item active text-white">Checkout</li>
+                </ol>
+            </div>
+            <!-- Single Page Header End -->
+    
+            
+            <!-- Checkout Page Start -->
+            <div class="container-fluid py-5">
+                <a href="{% url 'cart' %}">
+                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button"><i class="fa fa-arrow-left"></i> Back to Cart</button>
+                </a>
+                <div class="container py-4" >
+                        {% comment %} <form> {% endcomment %}
+                            <div class="row g-5">
+                                <div class="col-md-12 col-lg-6 col-xl-7">
+                                    <div id = 'form-wrapper'>
+                                        <form id = 'form'>
+                                            {% csrf_token %}
+                                            <div id = "user-info" class="row">
+                                                <div class="col-md-12 col-lg-6">
+                                                    <div class="form-item w-100">
+                                                        <label class="form-label my-3">Full Name<sup style = "color: red;">*</sup></label>
+                                                        <input name = 'name' type="text" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                               
+                                                <div class="col-md-12 col-lg-6">
+                                                    <div class="form-item w-100">
+                                                        <label class="form-label my-3">Email<sup style = "color: red;">*</sup></label>
+                                                        <input name = 'email' type="email" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 col-lg-6">
+                                                    <div class="form-item w-100">
+                                                        <label class="form-label my-3">Phone Number<sup style = "color: red;">*</sup></label>
+                                                        <input name = 'phone_number' type="tel" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div id = "shipping-info">
+                                                <h1 class="mb-4">Shipping details</h1>
+                                                <hr>
+                                                <div class="form-item">
+                                                    <label class="form-label my-3">Address <sup style = "color: red;">*</sup></label>
+                                                    <input name = 'address' type="text" class="form-control" required>
+                                                </div>
+                                                <div class="form-item">
+                                                    <label class="form-label my-3">City<sup style = "color: red;">*</sup></label>
+                                                    <input name = 'city' type="text" class="form-control" required>
+                                                </div>
+                                                <div class="form-item">
+                                                    <label class="form-label my-3">State<sup style = "color: red;">*</sup></label>
+                                                    <input name = 'state' type="text" class="form-control" required>
+                                                </div>
+                                                <div class="form-item">
+                                                    <label class="form-label my-3">Postcode/Zip<sup style = "color: red;">*</sup></label>
+                                                    <input name = 'zipcode' type="text" class="form-control" required>
+                                                </div>
+                                                <div class="form-item">
+                                                    <label class="form-label my-3">Country<sup style = "color: red;">*</sup></label>
+                                                    <input name = 'country' type="text" class="form-control" required>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row g-4 text-center align-items-center justify-content-center pt-4">
+                                                <button id = "form-button" type="submit" class="btn border-secondary py-3 px-4 text-uppercase w-50 text-primary">Place Order</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="row g-4 text-center align-items-center justify-content-center pt-4">
+                                        <div class="box-element hidden" id = "payment-info">
+                                            {% comment %} <input  class="btn border py-3 px-4 text-uppercase w-100 text-primary" style ="" value = 'Payment Options' readonly> {% endcomment %}
+                                            <input class="btn py-3 px-4 text-uppercase w-100 text-primary" 
+                                                style="border: 2px solid; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); border-radius: 4px; cursor: default;" 
+                                                value="Payment Options" 
+                                                readonly>
+
+                                            <hr>
+                                            <br>
+                                            <div id="paypal-button-container"></div>
+                                            {% comment %} <button id = "make-payment" class="btn border-secondary py-1 px-2 text-uppercase w-10 text-primary">Make Payment</button> {% endcomment %}
+                                            <br>
+                                            <br>
+                                            {% comment %} <button id = "make-direct-transfer" class="btn border-secondary py-1 px-2 text-uppercase w-10 text-primary">Direct Transfer</button> {% endcomment %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                               
+                               
+                                 <div class="col-md-12 col-lg-6 col-xl-5">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Products</th>
+                                                    <th scope="col">Name</th>
+                                                    <th scope="col">Price</th>
+                                                    <th scope="col">Quantity</th>
+                                                    <th scope="col">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in items  %}
+                                                <tr>
+                                                    <th scope="row">
+                                                        <div class="d-flex align-items-center mt-2">
+                                                            <img src="{{item.product.imageURL}}" class="img-fluid rounded-square" style="width: 90px; height: 90px;" alt="">
+                                                        </div>
+                                                    </th>
+                                                    <td class="py-5">{{ item.product.name }}</td>
+                                                    <td class="py-5">₦{{ item.product.price|floatformat:2}}</td>
+                                                    <td class="py-5">{{ item.quantity }}</td>
+                                                    <td class="py-5">₦{{ item.get_total }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                                <tr>
+                                                    <th scope="row">
+                                                    </th>
+                                                    <td class="py-5"></td>
+                                                    <td class="py-5"></td>
+                                                    <td class="py-5">
+                                                        <p class="mb-0 text-dark py-3">Subtotal</p>
+                                                    </td>
+                                                    <td class="py-5">
+                                                        <div class="py-3 border-bottom border-top">
+                                                            <p class="mb-0 text-dark">₦{{ order.get_cart_total|floatformat:2 }}</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th scope="row">
+                                                    </th>
+                                                    <td class="py-5"></td>
+                                                    <td class="py-5"></td>
+                                                    <td class="py-5">
+                                                        <p class="mb-0 text-dark py-3">Shipping</p>
+                                                    </td>
+                                                    <td class="py-5">
+                                                        <div class="py-3 border-bottom border-top">
+                                                            <p class="mb-0 text-dark">₦0.00</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                       
+                                                <tr>
+                                                    <th scope="row">
+                                                    </th>
+                                                    <td class="py-5">
+                                                        <p class="mb-0 text-dark text-uppercase py-3"><b>TOTAL</b></p>
+                                                    </td>
+                                                    <td class="py-5"></td>
+                                                    <td class="py-5"></td>
+                                                    <td class="py-5">
+                                                        <div class="py-3 border-bottom border-top">
+                                                            <p class="mb-0 text-dark">₦{{ order.get_cart_total|floatformat:2 }}</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                 </div>
+                            </div>
+                        {% comment %} </form> {% endcomment %}
+                </div>
+                     
+            </div>
+            <!-- Checkout Page End -->
+
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+
+    <script>
+        // Render the PayPal button into #paypal-button-container
+        paypal.Buttons({
+            style: {
+                color:  'blue',
+                shape:  'pill',
+                height: 40
+            },
+
+            // Call your server to set up the transaction
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '0.01'
+                        }
+                    }]
+                });
+            },
+
+            //finalize Transaction 
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    //show a success message to the buyer
+                    alert('Transaction completed by ' + details.payer.name.given_name + '!');
+                });
+            }
+                
+        }).render('#paypal-button-container');
+    </script>
+
+    <script type="text/javascript">
+        var user = '{{ request.user }}';
+        var shipping = "{{ order.shipping }}";
+        var total = '{{ order.get_cart_total|floatformat:2}}';
+    
+        // Function to retrieve CSRF token from cookies
+        function getToken(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        var csrftoken = getToken('csrftoken');
+    
+        // Conditionally hiding shipping info if the item doesn't require shipping
+        if (shipping === 'False') {
+            document.getElementById('shipping-info').innerHTML = '';
+        }
+    
+        // Hiding user info if the user is logged in (authenticated)
+        if (user !== 'AnonymousUser') {
+            document.getElementById('user-info').innerHTML = '';
+        }
+    
+        // If the user is logged in and shipping is not required, show payment info
+        if (shipping === 'False' && user !== 'AnonymousUser') {
+            document.getElementById('form-wrapper').classList.add('hidden');
+            document.getElementById('payment-info').classList.remove('hidden');
+        }
+    
+        var form = document.getElementById('form');
+        csrftoken = form.getElementsByTagName('input')[0].value
+        console.log('Newtoken:', form.getElementsByTagName('input')[0].value)
+    
+        // Handle form submission by preventing default behavior and showing payment options
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            console.log('Form submitted...');
+            document.getElementById('form-button').classList.add("hidden");
+            document.getElementById('payment-info').classList.remove('hidden');
+        });
+    
+        // Trigger payment submission when the 'make-payment' button is clicked
+       /* document.getElementById('make-payment').addEventListener('click', function () {
+            submitFormData();
+        }); */
+
+        // Function to gather form data and send it to the backend via POST request
+        function submitFormData() {
+            console.log('Payment button clicked');
+    
+            // Creating user data object
+            var userFormData = {
+                'name': null,
+                'email': null,
+                'phone_number': null,
+                'total': total,
+            };
+    
+            // Creating shipping info object
+            var shippingInfo = {
+                'address': null,
+                'city': null,
+                'state': null,
+                'zipcode': null,
+                'country': null,
+            };
+    
+            // Adding shipping info if the product requires shipping
+            if (shipping !== 'False') {
+                shippingInfo.address = form.address.value;
+                shippingInfo.city = form.city.value;
+                shippingInfo.state = form.state.value;
+                shippingInfo.zipcode = form.zipcode.value;
+                shippingInfo.country = form.country.value;
+            }
+    
+            // Collecting user data if they are an anonymous user
+            if (user === 'AnonymousUser') {
+                userFormData.name = form.name.value;
+                userFormData.email = form.email.value;
+                userFormData.phone_number = form.phone_number.value;
+            }
+    
+            // The backend URL to process the order
+            var url = '/processorder';
+    
+            // Sending data to the backend via fetch (POST request)
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({ 'form': userFormData, 'shipping': shippingInfo })
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log('Success:', data);
+                showTransactionCompletedMessage();
+            });
+        }
+
+
+        // this is for css
+        // Function to display a custom transaction completion alert with inline styles
+        function showTransactionCompletedMessage() {
+            // Creating the alert div and setting its text
+            var alertDiv = document.createElement('div');
+            alertDiv.innerText = 'Transaction completed successfully!';
+
+            // Inline styling for the alert box
+            alertDiv.style.position = 'fixed'; // Fix the box to the screen
+            alertDiv.style.top = '-100px'; // Start off-screen
+            alertDiv.style.left = '50%'; // Center the box horizontally
+            alertDiv.style.transform = 'translateX(-50%)'; // Adjust for exact center alignment
+            alertDiv.style.backgroundColor = '#4CAF50'; // Green background color
+            alertDiv.style.color = 'white'; // White text color
+            alertDiv.style.padding = '15px 30px'; // Padding for good spacing inside the box
+            alertDiv.style.fontSize = '16px'; // Slightly smaller font for balance
+            alertDiv.style.borderRadius = '10px'; // Rounded corners for a smooth look
+            alertDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)'; // Soft shadow for depth
+            alertDiv.style.zIndex = '9999'; // Ensure the alert is on top
+            alertDiv.style.minWidth = '300px'; // Minimum width to keep it balanced
+            alertDiv.style.textAlign = 'center'; // Center the text inside the box
+            alertDiv.style.opacity = '1'; // Ensure the alert is fully visible
+            alertDiv.style.transition = 'top 0.5s ease-out, opacity 0.5s ease-out'; // Smooth transition effect
+            alertDiv.style.height = 'auto'; // Let the height adjust to the content
+            alertDiv.style.maxWidth = '400px'; // Prevent the box from being too wide
+
+            // Append the alert box to the body
+            document.body.appendChild(alertDiv);
+
+            // Slide the alert into view by changing the 'top' position
+            setTimeout(function () {
+                alertDiv.style.top = '20px'; // Move it down into view after a short delay
+            }, 100);
+
+            // Create the "Proceed to Shop" button
+            var proceedButton = document.createElement('button');
+            proceedButton.innerText = 'Proceed to Shop'; // Set button text
+            proceedButton.style.backgroundColor = '#007BFF'; // Blue background color
+            proceedButton.style.color = 'white'; // White text color
+            proceedButton.style.padding = '10px 20px'; // Moderate padding
+            proceedButton.style.fontSize = '14px'; // Slightly smaller font for the button
+            proceedButton.style.border = 'none'; // Remove border
+            proceedButton.style.borderRadius = '5px'; // Rounded corners
+            proceedButton.style.cursor = 'pointer'; // Change cursor to pointer on hover
+            proceedButton.style.marginTop = '15px'; // Space between the message and button
+            proceedButton.style.transition = 'background-color 0.3s ease'; // Smooth background transition
+            proceedButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)'; // Soft shadow for button
+            proceedButton.style.marginBottom = '10px'; // Add space below the button
+
+            // Append the button to the alert box
+            alertDiv.appendChild(proceedButton);
+
+            // Button hover effect: Change color on hover
+            proceedButton.addEventListener('mouseover', function () {
+                proceedButton.style.backgroundColor = '#0056b3'; // Darker blue on hover
+            });
+
+            // Button mouseout effect: Restore original button color
+            proceedButton.addEventListener('mouseout', function () {
+                proceedButton.style.backgroundColor = '#007BFF'; // Restore original blue background
+            });
+
+            // Add click event to button to navigate to the shop page
+            proceedButton.addEventListener('click', function () {
+                window.location.href = "{% url 'shop' %}"; // Redirect to the shop page
+            });
+        }
+    
+    
+    </script>
+{% endblock %}
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} 
+this worked
+<script type="text/javascript">
+    var user = '{{ request.user }}';
+    var shipping = "{{ order.shipping }}";
+    var total = '{{ order.get_cart_total|floatformat:2 }}';
+
+    function getToken(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getToken('csrftoken');
+
+    if (shipping === 'False') {
+        document.getElementById('shipping-info').innerHTML = '';
+    }
+
+    if (user !== 'AnonymousUser') {
+        document.getElementById('user-info').innerHTML = '';
+    }
+
+    if (shipping === 'False' && user !== 'AnonymousUser') {
+        // Hide form and display only payment section
+        document.getElementById('form-wrapper').classList.add('hidden');
+        document.getElementById('payment-info').classList.remove('hidden');
+    }
+
+    var form = document.getElementById('form');
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        console.log('Form submitted...');
+
+        // Hide 'Place Order' button and display 'Payment Options' section
+        document.getElementById('form-button').classList.add("hidden");
+        document.getElementById('payment-info').classList.remove('hidden');
+    });
+
+    document.getElementById('make-payment').addEventListener('click', function () {
+        submitFormData();
+    });
+
+    function submitFormData() {
+        console.log('Payment button clicked');
+
+        var userFormData = {
+            'name': null,
+            'email': null,
+            'phone_number': null,
+            'total': total,
+        };
+
+        var shippingInfo = {
+            'address': null,
+            'city': null,
+            'state': null,
+            'zipcode': null,
+            'country': null,
+        };
+
+        if (shipping !== 'False') {
+            shippingInfo.address = form.address.value;
+            shippingInfo.city = form.city.value;
+            shippingInfo.state = form.state.value;
+            shippingInfo.zipcode = form.zipcode.value;
+            shippingInfo.country = form.country.value;
+        }
+
+        if (user === 'AnonymousUser') {
+            userFormData.name = form.name.value;
+            userFormData.email = form.email.value;
+            userFormData.phone_number = form.phone_number.value;
+        }
+
+        var url = '/processorder';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({ 'form': userFormData, 'shipping': shippingInfo })
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            alert('Transaction completed');
+            window.location.href = "{% url 'shop' %}";
+        });
+    }
+</script>
+{% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} <script type = "text/javascript">
+    var shipping = "{{order.shipping}}"
+    var total = '{{order.get_cart_total|floatformat:2}}'
+
+    if (shipping == 'False'){
+        document.getElementById('shipping-info').innerHTML = '';
+    }
+
+    if (user != 'AnonymousUser'){
+        document.getElementById('user-info').innerHTML='';
+    }
+
+    if (shipping == 'False' && user != 'AnonymousUser'){
+        //this hides the entire form if the user is logged in and the product in the cart is not digital but physical
+        document.getElementById('form-wrapper').classList.add('hidden');
+        //this shows payment if the logged in user wants to buy an item that does not require shipping
+        // it will only display payment tab since it is digital and user is logged in
+        //if the product selected is not digital, that is it needs to be shipped, the shipping form will be displayed
+        document.getElementById('payment-info').classList.remove('hidden');
+    }
+    
+
+    // from the form, this would allow the user to to hide the button clicked
+    var form = document.getElementById('form')
+
+    form.addEventListener('submit', function(e){
+        e.preventDefault();
+        console.log('Form submitted...');
+
+        // Hide the 'Place Order' button and show the 'Paypal Options' section
+        document.getElementById('form-button').classList.add("hidden");
+        document.getElementById('payment-info').classList.remove('hidden');       
+    }) 
+
+    document.getElementById('make-payment').addEventListener('click', function(e){
+        submitFormData();
+    })
+    
+    function submitFormData(){
+        console.log('Payment button clicked')
+
+        var userFormData = {
+            'name': null,
+            'email': null,
+            'phone_number': null,
+            'total': total,
+        }
+    
+        var shippingInfo = {
+            'address': null,
+            'city' : null,
+            'state': null,
+            'zipcode': null,
+            'country': null,
+        }
+
+        if (shipping != 'False'){ 
+            shippingInfo.address = form.address.value
+            shippingInfo.city = form.city.value
+            shippingInfo.state = form.state.value
+            shippingInfo.zipcode = form.zipcode.value
+            shippingInfo.country = form.country.value
+        }
+    
+        if (user == 'AnonymousUser'){
+            userFormData.name = form.name.value
+            userFormData.email = form.email.value
+            userFormData.phone_number = form.phone_number.value
+        }
+        
+        //console.log('Shipping Info:', shippingInfo)
+    //console.log('User Info:', userFormData)
+
+        var url = '/processorder'
+        fetch(url, {
+            method: 'POST', 
+            headers:{
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body:JSON.stringify({'form': userFormData, 'shipping': shippingInfo})
+        })
+
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:' data);
+            alert('Tranaction completed');
+            window.location.href = "{% url 'shop' %}"
+        })
+    }
+
+
+    
+
+</script>  {% endcomment %}

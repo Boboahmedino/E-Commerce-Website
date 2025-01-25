@@ -1,0 +1,666 @@
+<script type="text/javascript">
+    // Get the current logged-in user from Django template and assign it to the 'user' variable
+    var user = '{{ request.user }}';
+
+    // Get the shipping status and total cart value from Django template context
+    var shipping = "{{ order.shipping }}";
+    var total = '{{ order.get_cart_total|floatformat:2 }}';
+
+    // Function to get the CSRF token from cookies for AJAX requests
+    function getToken(name) {
+        var cookieValue = null;
+        // Check if there are any cookies set in the document
+        if (document.cookie && document.cookie !== '') {
+            // Split the cookies into an array to loop through
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // If the cookie's name matches, get its value
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue; // Return the CSRF token value
+    }
+
+    // Get the CSRF token value and store it in the 'csrftoken' variable
+    var csrftoken = getToken('csrftoken');
+
+    // If the shipping status is 'False', hide the shipping info section
+    if (shipping === 'False') {
+        document.getElementById('shipping-info').innerHTML = '';
+    }
+
+    // If the user is authenticated (not 'AnonymousUser'), hide the user info section
+    if (user !== 'AnonymousUser') {
+        document.getElementById('user-info').innerHTML = '';
+    }
+
+    // If shipping is 'False' and the user is authenticated, display only the payment section
+    if (shipping === 'False' && user !== 'AnonymousUser') {
+        document.getElementById('form-wrapper').classList.add('hidden'); // Hide the form section
+        document.getElementById('payment-info').classList.remove('hidden'); // Show the payment section
+    }
+
+    // Get the form element to attach event listeners
+    var form = document.getElementById('form');
+
+    // Listen for form submission to handle it manually via JavaScript
+    form.addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent the default form submission
+        console.log('Form submitted...');
+
+        // Hide the 'Place Order' button and show the 'Payment Options' section
+        document.getElementById('form-button').classList.add("hidden");
+        document.getElementById('payment-info').classList.remove('hidden');
+    });
+
+    // Event listener for clicking the 'Make Payment' button
+    document.getElementById('make-payment').addEventListener('click', function () {
+        submitFormData(); // Call the function to submit the form data
+    });
+
+    // Function to submit the form data via AJAX
+    function submitFormData() {
+        console.log('Payment button clicked');
+
+        // Collect user form data
+        var userFormData = {
+            'name': null,
+            'email': null,
+            'phone_number': null,
+            'total': total,
+        };
+
+        // Collect shipping info if shipping is required
+        var shippingInfo = {
+            'address': null,
+            'city': null,
+            'state': null,
+            'zipcode': null,
+            'country': null,
+        };
+
+        // If shipping is not 'False', gather shipping information from the form
+        if (shipping !== 'False') {
+            shippingInfo.address = form.address.value;
+            shippingInfo.city = form.city.value;
+            shippingInfo.state = form.state.value;
+            shippingInfo.zipcode = form.zipcode.value;
+            shippingInfo.country = form.country.value;
+        }
+
+        // If the user is anonymous, collect additional personal information from the form
+        if (user === 'AnonymousUser') {
+            userFormData.name = form.name.value;
+            userFormData.email = form.email.value;
+            userFormData.phone_number = form.phone_number.value;
+        }
+
+        // Set up the URL for the AJAX request to process the order
+        var url = '/processorder';
+        
+        // Send the form data and shipping info as JSON to the server using fetch
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken, // Include the CSRF token in the request headers
+            },
+            body: JSON.stringify({ 'form': userFormData, 'shipping': shippingInfo }) // Send the data in the request body
+        })
+        .then((response) => response.json()) // Parse the JSON response from the server
+        .then((data) => {
+            console.log('Success:', data);
+            alert('Transaction completed'); // Alert the user that the transaction was successful
+            window.location.href = "{% url 'shop' %}"; // Redirect to the shop page
+        });
+    }
+</script>
+
+
+
+
+
+
+
+--------------
+
+A styled function for the above
+
+<script type="text/javascript">
+    var user = '{{ request.user }}';
+    var shipping = "{{ order.shipping }}";
+    var total = '{{ order.get_cart_total|floatformat:2}}';
+
+    // Function to retrieve CSRF token from cookies
+    function getToken(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    var csrftoken = getToken('csrftoken');
+
+    // Conditionally hiding shipping info if the item doesn't require shipping
+    if (shipping === 'False') {
+        document.getElementById('shipping-info').innerHTML = '';
+    }
+
+    // Hiding user info if the user is logged in (authenticated)
+    if (user !== 'AnonymousUser') {
+        document.getElementById('user-info').innerHTML = '';
+    }
+
+    // If the user is logged in and shipping is not required, show payment info
+    if (shipping === 'False' && user !== 'AnonymousUser') {
+        document.getElementById('form-wrapper').classList.add('hidden');
+        document.getElementById('payment-info').classList.remove('hidden');
+    }
+
+    var form = document.getElementById('form');
+
+    // Handle form submission by preventing default behavior and showing payment options
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        console.log('Form submitted...');
+        document.getElementById('form-button').classList.add("hidden");
+        document.getElementById('payment-info').classList.remove('hidden');
+    });
+
+    // Trigger payment submission when the 'make-payment' button is clicked
+    document.getElementById('make-payment').addEventListener('click', function () {
+        submitFormData();
+    });
+
+    // Function to gather form data and send it to the backend via POST request
+    function submitFormData() {
+        console.log('Payment button clicked');
+
+        // Creating user data object
+        var userFormData = {
+            'name': null,
+            'email': null,
+            'phone_number': null,
+            'total': total,
+        };
+
+        // Creating shipping info object
+        var shippingInfo = {
+            'address': null,
+            'city': null,
+            'state': null,
+            'zipcode': null,
+            'country': null,
+        };
+
+        // Adding shipping info if the product requires shipping
+        if (shipping !== 'False') {
+            shippingInfo.address = form.address.value;
+            shippingInfo.city = form.city.value;
+            shippingInfo.state = form.state.value;
+            shippingInfo.zipcode = form.zipcode.value;
+            shippingInfo.country = form.country.value;
+        }
+
+        // Collecting user data if they are an anonymous user
+        if (user === 'AnonymousUser') {
+            userFormData.name = form.name.value;
+            userFormData.email = form.email.value;
+            userFormData.phone_number = form.phone_number.value;
+        }
+
+        // The backend URL to process the order
+        var url = '/processorder';
+
+        // Sending data to the backend via fetch (POST request)
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({ 'form': userFormData, 'shipping': shippingInfo })
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            showTransactionCompletedMessage();
+        });
+    }
+
+
+
+    FUNCTION MAKE PAYMENT 1
+
+
+    // this is for css
+    // Function to display a custom transaction completion alert with inline styles
+    function showTransactionCompletedMessage() {
+        // Creating the alert div and setting its text
+        var alertDiv = document.createElement('div');
+        alertDiv.innerText = 'Transaction completed successfully!';
+
+        // Inline styling for the alert box
+        alertDiv.style.position = 'fixed'; // Fix the box to the screen
+        alertDiv.style.top = '-100px'; // Start off-screen
+        alertDiv.style.left = '50%'; // Center the box horizontally
+        alertDiv.style.transform = 'translateX(-50%)'; // Adjust for exact center alignment
+        alertDiv.style.backgroundColor = '#4CAF50'; // Green background color
+        alertDiv.style.color = 'white'; // White text color
+        alertDiv.style.padding = '15px 30px'; // Padding for good spacing inside the box
+        alertDiv.style.fontSize = '16px'; // Slightly smaller font for balance
+        alertDiv.style.borderRadius = '10px'; // Rounded corners for a smooth look
+        alertDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)'; // Soft shadow for depth
+        alertDiv.style.zIndex = '9999'; // Ensure the alert is on top
+        alertDiv.style.minWidth = '300px'; // Minimum width to keep it balanced
+        alertDiv.style.textAlign = 'center'; // Center the text inside the box
+        alertDiv.style.opacity = '1'; // Ensure the alert is fully visible
+        alertDiv.style.transition = 'top 0.5s ease-out, opacity 0.5s ease-out'; // Smooth transition effect
+        alertDiv.style.height = 'auto'; // Let the height adjust to the content
+        alertDiv.style.maxWidth = '400px'; // Prevent the box from being too wide
+
+        // Append the alert box to the body
+        document.body.appendChild(alertDiv);
+
+        // Slide the alert into view by changing the 'top' position
+        setTimeout(function () {
+            alertDiv.style.top = '20px'; // Move it down into view after a short delay
+        }, 100);
+
+        // Create the "Proceed to Shop" button
+        var proceedButton = document.createElement('button');
+        proceedButton.innerText = 'Proceed to Shop'; // Set button text
+        proceedButton.style.backgroundColor = '#007BFF'; // Blue background color
+        proceedButton.style.color = 'white'; // White text color
+        proceedButton.style.padding = '10px 20px'; // Moderate padding
+        proceedButton.style.fontSize = '14px'; // Slightly smaller font for the button
+        proceedButton.style.border = 'none'; // Remove border
+        proceedButton.style.borderRadius = '5px'; // Rounded corners
+        proceedButton.style.cursor = 'pointer'; // Change cursor to pointer on hover
+        proceedButton.style.marginTop = '15px'; // Space between the message and button
+        proceedButton.style.transition = 'background-color 0.3s ease'; // Smooth background transition
+        proceedButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)'; // Soft shadow for button
+        proceedButton.style.marginBottom = '10px'; // Add space below the button
+
+        // Append the button to the alert box
+        alertDiv.appendChild(proceedButton);
+
+        // Button hover effect: Change color on hover
+        proceedButton.addEventListener('mouseover', function () {
+            proceedButton.style.backgroundColor = '#0056b3'; // Darker blue on hover
+        });
+
+        // Button mouseout effect: Restore original button color
+        proceedButton.addEventListener('mouseout', function () {
+            proceedButton.style.backgroundColor = '#007BFF'; // Restore original blue background
+        });
+
+        // Add click event to button to navigate to the shop page
+        proceedButton.addEventListener('click', function () {
+            window.location.href = "{% url 'shop' %}"; // Redirect to the shop page
+        });
+    }
+
+
+FUNCTION MAKE PAYMENT 2
+
+    function showTransactionCompletedMessage() {
+        // Creating the alert div
+        var alertDiv = document.createElement('div');
+        alertDiv.id = 'transaction-completed-popup';  // Adding a unique id for the popup
+        
+        // Transaction Completed Message HTML
+        alertDiv.innerHTML = `
+            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background-color: #ffffff; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                        border-radius: 10px; width: 300px; z-index: 10000; text-align: center;">
+                <h3>Transaction Completed Successfully!</h3>
+                <p>Your transaction has been completed successfully. Thank you for your payment!</p>
+                <p style="color: red;">*Note: After closing, you will be redirected to the shop page.</p>
+                <!-- Proceed to Shop button -->
+                <button onclick="closeTransactionCompletedMessage()" style="margin-top: 20px; background-color: #007BFF; color: white;
+                        border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        `;
+    
+        // Adding styles to prevent interaction with the background
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '0';
+        alertDiv.style.left = '0';
+        alertDiv.style.width = '100%';
+        alertDiv.style.height = '100%';
+        alertDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        alertDiv.style.display = 'flex';
+        alertDiv.style.alignItems = 'center';
+        alertDiv.style.justifyContent = 'center';
+        alertDiv.style.zIndex = '9999';
+    
+        // Append the div to the body to display the popup
+        document.body.appendChild(alertDiv);
+    }
+    
+    // Function to close the Transaction Completed popup and redirect to shop page
+    function closeTransactionCompletedMessage() {
+        var alertDiv = document.getElementById('transaction-completed-popup');  // Selecting the popup by id
+        if (alertDiv) {
+            document.body.removeChild(alertDiv);
+            // Redirect to the shop page
+            window.location.href = "{% url 'shop' %}"; // Redirect to the shop page after closing the popup
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Adding event listener for "Direct Transfer" button
+    //document.getElementById('make-direct-transfer').addEventListener('click', function () {
+    //    showDirectTransferInfo();
+    //});
+
+    // Function to display direct transfer details in a popup
+    function showDirectTransferInfo() {
+        // Creating the popup div
+        var directTransferDiv = document.createElement('div');
+        directTransferDiv.id = 'direct-transfer-popup';  // Adding a unique id for the popup
+        
+        // Direct Transfer Account Information HTML
+        directTransferDiv.innerHTML = `
+            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background-color: #ffffff; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                        border-radius: 10px; width: 300px; z-index: 10000; text-align: center;">
+                <h3>Direct Bank Transfer</h3>
+                <p>Account Name: Zenith Bank</p>
+                <p>Bank Name: Olaneye Ahmed Oladapo</p>
+                <p>Account Number: 2219646404</p>
+                <p>Please send your payment receipt to:</p>
+                <p><a href="mailto:fruitables@gmail.com">fruitables@gmail.com</a></p>
+                <p>Or send a WhatsApp message with your receipt to:</p>
+                <p><a href="https://wa.me/+2349038967463" target="_blank">+234 903 896 7463</a></p>
+                
+                <p style="color:red;"> *Note After clicking on close button, you will be redirected to the shop page</p>
+                <!-- Close button -->
+                <button onclick="closeDirectTransferInfo()" style="margin-top: 20px; background-color: #007BFF; color: white;
+                        border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        `;
+
+        // Adding styles to prevent interaction with the background
+        directTransferDiv.style.position = 'fixed';
+        directTransferDiv.style.top = '0';
+        directTransferDiv.style.left = '0';
+        directTransferDiv.style.width = '100%';
+        directTransferDiv.style.height = '100%';
+        directTransferDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        directTransferDiv.style.display = 'flex';
+        directTransferDiv.style.alignItems = 'center';
+        directTransferDiv.style.justifyContent = 'center';
+        directTransferDiv.style.zIndex = '9999';
+
+        // Append the div to the body to display the popup
+        document.body.appendChild(directTransferDiv);
+    }
+
+    // Function to close the Direct Transfer popup
+    function closeDirectTransferInfo() {
+        var directTransferDiv = document.getElementById('direct-transfer-popup');  // Selecting the popup by id
+        if (directTransferDiv) {
+            document.body.removeChild(directTransferDiv);
+            window.location.href = "{% url 'shop' %}";
+        }
+    }
+
+
+
+
+
+</script>
+
+
+
+
+
+
+// this is the third payment script i designed
+<script type="text/javascript">
+    var user = '{{ request.user }}';
+    var shipping = "{{ order.shipping }}";
+    var total = '{{ order.get_cart_total|floatformat:2}}';
+
+    // Function to retrieve CSRF token from cookies
+    function getToken(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    var csrftoken = getToken('csrftoken');
+
+    // Conditionally hiding shipping info if the item doesn't require shipping
+    if (shipping === 'False') {
+        document.getElementById('shipping-info').innerHTML = '';
+    }
+
+    // Hiding user info if the user is logged in (authenticated)
+    if (user !== 'AnonymousUser') {
+        document.getElementById('user-info').innerHTML = '';
+    }
+
+    // If the user is logged in and shipping is not required, show payment info
+    if (shipping === 'False' && user !== 'AnonymousUser') {
+        document.getElementById('form-wrapper').classList.add('hidden');
+        document.getElementById('payment-info').classList.remove('hidden');
+    }
+
+    var form = document.getElementById('form');
+    csrftoken = form.getElementsByTagName('input')[0].value
+    console.log('Newtoken:', form.getElementsByTagName('input')[0].value)
+
+    // Handle form submission by preventing default behavior and showing payment options
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        console.log('Form submitted...');
+        document.getElementById('form-button').classList.add("hidden");
+        document.getElementById('payment-info').classList.remove('hidden');
+    });
+
+    // Trigger payment submission when the 'make-payment' button is clicked
+    document.getElementById('make-payment').addEventListener('click', function () {
+        submitFormData();
+    });
+
+    // Function to gather form data and send it to the backend via POST request
+    function submitFormData() {
+        console.log('Payment button clicked');
+
+        // Creating user data object
+        var userFormData = {
+            'name': null,
+            'email': null,
+            'phone_number': null,
+            'total': total,
+        };
+
+        // Creating shipping info object
+        var shippingInfo = {
+            'address': null,
+            'city': null,
+            'state': null,
+            'zipcode': null,
+            'country': null,
+        };
+
+        // Adding shipping info if the product requires shipping
+        if (shipping !== 'False') {
+            shippingInfo.address = form.address.value;
+            shippingInfo.city = form.city.value;
+            shippingInfo.state = form.state.value;
+            shippingInfo.zipcode = form.zipcode.value;
+            shippingInfo.country = form.country.value;
+        }
+
+        // Collecting user data if they are an anonymous user
+        if (user === 'AnonymousUser') {
+            userFormData.name = form.name.value;
+            userFormData.email = form.email.value;
+            userFormData.phone_number = form.phone_number.value;
+        }
+
+        // The backend URL to process the order
+        var url = '/processorder';
+
+        // Sending data to the backend via fetch (POST request)
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({ 'form': userFormData, 'shipping': shippingInfo })
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            showTransactionCompletedMessage();
+        });
+    }
+    // this is for css
+    // Function to display a custom transaction completion alert with inline styles
+    function showTransactionCompletedMessage() {
+        // Creating the alert div
+        var alertDiv = document.createElement('div');
+        alertDiv.id = 'transaction-completed-popup';  // Adding a unique id for the popup
+        
+        // Transaction Completed Message HTML
+        alertDiv.innerHTML = 
+             `<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background-color: #ffffff; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                        border-radius: 10px; width: 300px; z-index: 10000; text-align: center; max-height: 550px; overflow-y: auto;">
+                <h3>Pay with Debit Card</h3>
+                
+                 <!-- Proceed to Payment button to redirect to payment platform -->
+                <button onclick="proceedToPayment()" style="margin-top: 10px; background-color: #28a745; color: white;
+                        border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    Paypal
+                </button>
+
+                <br>
+                <br>
+
+                <h3>Direct Bank Transfer</h3>
+                <p>Bank Name: Zenith Bank</p>
+                <p>Account Name: Olaneye Ahmed Oladapo</p>
+                <p>Account Number: 2219646404</p>
+                <p>Please send your payment receipt to:</p>
+                <p><a href="mailto:fruitables@gmail.com">fruitables@gmail.com</a></p>
+                <p>Or send a WhatsApp message with your receipt to:</p>
+                <p><a href="https://wa.me/+2349038967463" target="_blank">+234 903 896 7463</a></p>
+                
+                <p style="margin-top: 15px; font-size: 14px; color: #555;">
+                    Thanks for choosing Fruitables! 🍎🍉 Every purchase keeps our fruits happier and our team smiling! Come back soon!
+                </p>
+
+                <!-- <p style="color:red; font-size: 8px;"> <b>Note:</b> After clicking on the close button, you will be redirected to the shop page</p> -->
+
+                <!-- Close button -->
+                <button onclick="closeTransactionCompletedMessage()" style="margin-top: 20px; background-color: #007BFF; color: white;
+                        border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        `;
+    
+        // Adding styles to prevent interaction with the background
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '0';
+        alertDiv.style.left = '0';
+        alertDiv.style.width = '100%';
+        alertDiv.style.height = '100%';
+        alertDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        alertDiv.style.display = 'flex';
+        alertDiv.style.alignItems = 'center';
+        alertDiv.style.justifyContent = 'center';
+        alertDiv.style.zIndex = '9999';
+    
+        // Append the div to the body to display the popup
+        document.body.appendChild(alertDiv);
+    }
+    
+    function proceedToPayment() {
+        cart = {}
+        document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+        window.location.href = "https://www.paypal.com";  // Example link to PayPal or Mastercard
+    }
+      /* this for remita
+    function proceedToPayment() {
+        // Reset the cart and store it as a cookie
+        cart = {};
+        document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/";
+
+        // Replace these values with your actual Remita credentials
+        const merchantId = "YOUR_MERCHANT_ID";
+        const serviceTypeId = "YOUR_SERVICE_TYPE_ID"; // Depends on your account configuration
+        const apiKey = "YOUR_API_KEY";
+        const orderId = "YOUR_ORDER_ID"; // Generate unique order ID for each payment
+        const amount = "1000"; // Replace with your actual amount variable
+        const description = "Payment Description"; // Customize based on your product or service
+
+        // Create a redirect URL for Remita payment
+        const paymentUrl = `https://remitademo.net/payment/v1/remita-pay-inline?merchantId=${merchantId}&serviceTypeId=${serviceTypeId}&orderId=${orderId}&amount=${amount}&description=${description}`;
+
+        // Redirect to the Remita payment page
+        window.location.href = paymentUrl;
+    }
+    */
+
+
+    // Function to close the Transaction Completed popup and redirect to shop page
+    function closeTransactionCompletedMessage() {
+        var alertDiv = document.getElementById('transaction-completed-popup');  // Selecting the popup by id
+        if (alertDiv) {
+            document.body.removeChild(alertDiv);
+            cart = {}
+            document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+            // Redirect to the shop page
+            window.location.href = "{% url 'shop' %}"; // Redirect to the shop page after closing the popup
+        }
+    }
+</script>

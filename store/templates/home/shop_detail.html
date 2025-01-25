@@ -1,0 +1,47 @@
+{% extends "base_home.html" %}
+{% load static %}
+{% block content %}
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Shop Detail</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'shop' %}">Shop</a></li>
+            <li class="breadcrumb-item active text-white">Shop Detail</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+    <div class="container-fluid py-5 mt-5">
+        <div class="container py-5" style=""> <!-- Adjust margin here -->
+            <div class="row g-4 mb-5">
+                <div class="col-lg-8 col-xl-9">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="border rounded">
+                                <a href="#">
+                                    <img src="{{ product.imageURL }}" class="img-fluid rounded" alt="Image">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <h4 class="fw-bold mb-3">{{ product.name }}</h4>
+                            <p class="mb-3">Category: {{product.category}}</p>
+                            <h5 class="fw-bold mb-3">₦ {{ product.price }}</h5>
+                            <div class="d-flex mb-4">
+                                {% for star in product.star_rating  %}
+                                <i class="fa fa-star {% if not star %} text-secondary {% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                            <h6 class="fw-bold mb-3">Description</h6>
+                            <p class="mb-4">{{product.description}}</p>
+                            <a href="#" data-product="{{product.id}}" data-action="add" class="btn border border-secondary rounded-pill px-3 text-primary update-cart"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
+                            <br>
+                            <br>
+                            <a href="{% url 'shop' %}" class="btn border border-secondary rounded-pill px-3 text-primary"><i class = "fa fa-arrow-left"></i> Back to Shop</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

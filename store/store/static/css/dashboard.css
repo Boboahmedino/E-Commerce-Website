@@ -1,0 +1,162 @@
+/* General Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f1f3f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: #0056b3;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar a {
+    color: white !important;
+}
+
+/* Scrollable Table Sections */
+.fixed-table {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Centered Product Table Wrapper */
+.product-table-wrapper {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto; /* Horizontal scroll only */
+    overflow-y: hidden; /* No vertical scroll */
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Product Table Styling */
+.product-table {
+    min-width: 600px; /* Adjust as needed */
+    max-width: 100%;
+    border-collapse: collapse;
+}
+
+/* Center-align table headers and cells */
+.product-table th,
+.product-table td {
+    padding: 12px;
+    text-align: center;
+    font-size: 1.1rem;
+    white-space: nowrap; /* Prevent line breaks */
+    border: 1px solid #ddd;
+}
+
+.product-table th {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Product Table Row Alternating Colors */
+.product-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.product-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* General Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    font-size: 1.1rem;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Button Styling */
+button.order-toggle {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+}
+
+button.order-toggle:hover {
+    background-color: #218838;
+}
+
+/* Order Status Dropdown */
+.form-select {
+    width: 120px;
+}
+
+/* Wrapper for order details section */
+.order-details-wrapper {
+    display: inline-block;
+    width: 70%;
+    padding: 20px;
+    margin: 0 auto;
+    background-color: #f7f9fc;
+    border: 2px solid #ced4da;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Title styling for order details */
+.order-details-title {
+    color: #343a40;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Styling for the order details table */
+.order-details-table {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+/* Table header styling */
+.order-details-table thead {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+/* Row and cell styling */
+.order-details-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.order-details-table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+/* Total row styling */
+.order-details-table tbody tr:last-child {
+    background-color: #e8f5e9;
+    font-weight: bold;
+}
+
+/* Center-align text in cells */
+.order-details-table td,
+.order-details-table th {
+    text-align: center;
+    padding: 12px;
+}

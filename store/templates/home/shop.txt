@@ -1,0 +1,30 @@
+<div class="d-flex flex-column align-items-center mt-5">
+    <div class="pagination d-flex justify-content-center mt-5">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="rounded">&laquo;</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="rounded"> < </a>
+        {% comment %} {% else %}
+            <span class="rounded disabled" style = "padding-top:1%";>&laquo;</span>
+            <span class="rounded disabled" style = "padding-top:1%";>Previous</span> {% endcomment %}
+        {% endif %}
+    
+        {% for page_num in page_obj.paginator.page_range %}
+            {% if page_num == page_obj.number %}
+                <a href="?page={{ page_num }}" class="active rounded">{{ page_num }}</a>
+            {% else %}
+                <a href="?page={{ page_num }}" class="rounded">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+    
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="rounded"> > </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="rounded">&raquo;</a>
+        {% comment %} {% else %}
+            <span class="rounded disabled" style = "padding-top:1%;">Next</span>
+            <span class="rounded disabled" style = "padding-top:1%;">&raquo;</span> {% endcomment %}
+        {% endif %}
+    </div>
+    <p class="mb-0 mt-4" style="color:red;">
+        Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </p>
+</div>

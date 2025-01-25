@@ -1,0 +1,63 @@
+{% extends 'base_auth.html' %}
+{% load static %}
+{% block content %}
+<div class="center">
+        <br>
+        <h1>Sign Up</h1>
+     <form action = 'register' method='post'>
+            {% csrf_token %}
+            {% include 'partials/_messages.html' %}
+            <div class="txt_field">
+                <input 
+                type="text"
+                name = 'username'
+                id = 'usernamefield'
+                required>
+                <span></span>
+                <label>Full Name</label>
+            </div>
+            <div class="txt_field">
+                <input
+                 type="email"
+                name = 'email'
+                id = 'emailfield'
+                 required>
+                <span></span>
+                <label>Email</label>
+            </div>
+            <div class="txt_field">
+                <input
+                 type="tel"
+                name = 'first_name'
+                id = 'first_namefield'
+                 required>
+                <span></span>
+                <label>Phone Number</label>
+            </div>
+            <div class="txt_field">
+                <input
+                 type="password"
+                name = 'password'
+                id = 'passwordfield'
+                required>
+                <span></span>
+                <label>Password</label>
+                </div>
+            <div class="txt_field">
+                <input
+                 type="password"
+                name = 'confirm_password'
+                id = 'passwordfield'
+                required>
+                <span></span>
+                <label>Confirm Password</label>
+                </div>
+            <input class = 'jaga' type="submit" value="Sign Up">
+            <div class="sign_link">Already have an account?
+                <a href="{% url 'login' %}">
+                    Sign In
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
