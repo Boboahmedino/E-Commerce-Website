@@ -28,3 +28,8 @@ This command will automatically install all the necessary libraries, including D
 + **PayPal Payment Gateway Configuration:** To enable PayPal payments, you need to configure the PayPal API keys and credentials in the settings. Ensure your PayPal developer account is set up, and update the integration settings accordingly in your project.
 + **Customizability:** This platform provides a flexible foundation for an eCommerce website. It can be further extended with additional features like product reviews, customer support chat, inventory management, or multi-language support.
 + **Environment Setup:** It is recommended to use a virtual environment to manage your dependencies and ensure a clean project setup. This helps to isolate the project’s libraries and avoid conflicts with other Python projects.
+
+---
+
+## Author
+Olaneye Ahmed Oladapo
